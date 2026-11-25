@@ -19,10 +19,15 @@ figcaption{font-size:.88rem;color:#58636a;margin-top:6px}
 article section ul,article section ol{padding-inline-start:1.45rem;margin-block:.45rem 1rem}
 article section li>p{margin:.45rem 0}
 article section li>ul,article section li>ol{margin-top:.3rem}
-.equation{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.25rem .8rem;max-width:100%;overflow-x:auto;margin:.65rem 0;padding:.4rem .65rem;background:#f4f6f7;border-radius:4px}
-.equation-math{flex:1 0 auto}
-.equation mjx-container[display="true"]{margin:.35em 0!important;text-align:left!important}
-.equation-label{color:#58636a;font-size:.88rem;white-space:nowrap}
+.equation{position:relative;max-width:100%;overflow-x:auto;margin:.65rem 0;padding:.4rem .65rem;background:#f4f6f7;border-radius:4px;text-align:center}
+.equation-math{min-width:max-content}
+.equation:has(.equation-label) .equation-math{margin-inline:4.5rem}
+.equation mjx-container[display="true"]{margin:.35em 0!important;text-align:center!important}
+.equation-label{position:absolute;right:.65rem;top:50%;transform:translateY(-50%);color:#58636a;font-size:.88rem;white-space:nowrap}
+@media(max-width:620px){
+.equation:has(.equation-label) .equation-math{margin-inline:0}
+.equation-label{position:static;display:block;transform:none;text-align:right}
+}
 
 @media(min-width:801px){figure.wide-plot{width:min(1500px,calc(100vw - var(--sidebar) - 48px))}}
 </style><script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script></head><body>
@@ -92,9 +97,7 @@ article section li>ul,article section li>ol{margin-top:.3rem}
 </li>
 <li><p>Run a standard statistical test comparing \(Y^{\text{CUPED}}_{T=1}\) vs. \(Y^{\text{CUPED}}_{T=0}\).</p>
 </li>
-<li><p>Note: The variance after CUPED adjustment can be calculated as:</p>
-<div class="equation"><div class="equation-math">\[\operatorname{Var}(Y^{\text{CUPED}}) = \operatorname{Var}(Y)(1-\rho_{X,Y}^2)\]</div></div>
-<p>where \(\rho_{X,Y} = \operatorname{corr}(Y, X)\) is the correlation between \(Y\) and \(X\).</p>
+<li><p>Note: The variance after CUPED adjustment can be calculated as \(\operatorname{Var}(Y^{\text{CUPED}}) = \operatorname{Var}(Y)(1-\rho_{X,Y}^2)\), where \(\rho_{X,Y} = \operatorname{corr}(Y, X)\) is the correlation between \(Y\) and \(X\).</p>
 </li></ol>
 </li>
 <li><p><strong>Pro Tips:</strong></p>
