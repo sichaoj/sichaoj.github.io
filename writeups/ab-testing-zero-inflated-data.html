@@ -35,7 +35,7 @@ article section li>ul,article section li>ol{margin-top:.3rem}
 <header class="mobile-header"><a class="site-name" href="../index.html">sichaoj</a><button class="menu-button" aria-label="Toggle navigation" aria-expanded="false">☰</button><nav class="nav mobile-nav" aria-label="Mobile navigation"><a href="../index.html">Home</a><a href="../blog.html" aria-current="page">Blog</a><a href="../research.html">Research</a><a href="../teaching.html">Teaching</a></nav></header>
 <div class="page" style="padding:0"><main class="post-main"><article><p><a href="../blog.html">← Back to Blog</a></p>
 <header><h1>Follow-Up: handling zero-inflated, heavily skewed data in A/B testing and variance reduction techniques</h1><p class="meta">Estimated Reading Time: 6 min | Author: Sichao (Fiona) Jiang</p></header>
-<nav aria-label="Table of contents">Table of contents<ul><li><a href="#context">Context</a></li><li><a href="#results">Handling Zero-Inflated, Heavily Right-Skewed Data</a></li><li><a href="#variance-reduction">Variance Reduction Techniques</a></li></ul></nav>
+<nav aria-label="Table of contents">Table of contents<ul><li><a href="#context">Context</a></li><li><a href="#results">Handling Zero-Inflated, Heavily Right-Skewed Data</a></li><li><a href="#variance-reduction">Variance Reduction Techniques</a></li><li><a href="#references">References</a></li></ul></nav>
 <section><h2 id="context">Context</h2><p><strong>Context:</strong> In my <a href="https://sichaoj.github.io/writeups/ab-testing-skewed-data.html">last post</a>, I explored why analyzing heavily right-skewed data can be challenging. Specifically, extreme skewness may require a substantially larger sample size to achieve sufficient statistical power, increasing the risk of Type II errors.</p>
 <p>However, my original simulation overlooked an important part of real-world business metrics: <strong>heavily right-skewed data often contain a large proportion of zeros</strong>, making a direct log transformation problematic since log(0) is undefined.</p>
 <p><strong>Questions:</strong></p>
@@ -133,4 +133,9 @@ ATE
 </li></ol>
 </li></ul>
 </li></ul></section>
+<section aria-labelledby="references">
+<h2 id="references">References</h2>
+<p>[1] Deng, Alex, Ya Xu, Ron Kohavi, and Toby Walker. <a href="https://www.researchgate.net/publication/237838291_Improving_the_Sensitivity_of_Online_Controlled_Experiments_by_Utilizing_Pre-Experiment_Data">“Improving the Sensitivity of Online Controlled Experiments by Utilizing Pre-Experiment Data.”</a> <em>Proceedings of the Sixth ACM International Conference on Web Search and Data Mining</em>, pp. 123–132, 2013.</p>
+<p>[2] Deng, Alex. <a href="https://alexdeng.github.io/causal/sensitivity.html#vrreg">“General Regression Adjustment and Doubly Robust Estimation.”</a> <em>Causal Inference and Its Applications in Online Industry</em>, §10.2.2.</p>
+</section>
 </article></main></div><script src="../site.js"></script></body></html>
