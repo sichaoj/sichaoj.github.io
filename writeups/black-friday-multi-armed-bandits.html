@@ -27,10 +27,16 @@ main.post-main nav ul{display:grid;gap:.25rem}figcaption{color:#58636a;font-size
 .thompson-legend span:first-child{color:#28688f}
 .thompson-legend span:nth-child(2){color:#a84a0a}
 #thompson-chart{display:block;width:100%;height:clamp(200px,36vw,325px);margin-bottom:.75rem}
+
+.post-toc summary{cursor:pointer}
+.post-toc ul{padding-inline-start:1.1rem}
+.method-comparison tr > :first-child{position:sticky;left:0;z-index:1;background:#fff;box-shadow:1px 0 #e3e9ed}
+.method-comparison thead th{z-index:2}
+.method-comparison thead tr > :first-child{z-index:3;background:#edf2f4}
 </style><script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script></head><body>
 <aside class="sidebar"><a class="site-name" href="../index.html">sichaoj</a><nav class="nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../blog.html" aria-current="page">Blog</a><a href="../research.html">Research</a><a href="../teaching.html">Teaching</a></nav></aside>
 <header class="mobile-header"><a class="site-name" href="../index.html">sichaoj</a><button class="menu-button" aria-label="Toggle navigation" aria-expanded="false">☰</button><nav class="nav mobile-nav" aria-label="Mobile navigation"><a href="../index.html">Home</a><a href="../blog.html" aria-current="page">Blog</a><a href="../research.html">Research</a><a href="../teaching.html">Teaching</a></nav></header>
-<div class="page" style="padding:0"><main class="post-main"><article><p><a href="../blog.html">← Back to Blog</a></p><header><h1>Why wait for a winner? Optimizing Black Friday sales with Multi-Armed Bandits</h1><p class="meta">Estimated Reading Time: 8 min | Author: Sichao (Fiona) Jiang</p></header><nav aria-label="Table of contents">Table of contents<ul><li><a href="#context">Context</a></li><li><a href="#solutions">Approaches to Solving the Multi-Armed Bandit Problem</a></li><li><a href="#simulation">Simulation</a></li><li><a href="#conclusions">Conclusions</a></li><li><a href="#advanced">Advanced Topics</a></li><li><a href="#appendix">Appendix</a></li></ul></nav><section id="context"><h2>Context</h2><p><strong>Context</strong>: Black Friday is around the corner, and the marketing team wants to test different promo messages to maximize conversions/purchases. Marketing lead comes to me: “A/B test is great, but Black Friday is short! I can't afford to waste 50% of my traffic on a losing variant. Is there a way we can learn and optimize on the fly?”</p>
+<div class="page" style="padding:0"><main class="post-main"><article><p><a href="../blog.html">← Back to Blog</a></p><header><h1>Why wait for a winner? Optimizing Black Friday sales with Multi-Armed Bandits</h1><p class="meta">Estimated Reading Time: 8 min | Author: Sichao (Fiona) Jiang</p></header><nav aria-label="Table of contents"><details class="post-toc"><summary>Table of contents</summary><ul><li><a href="#context">Context</a></li><li><a href="#solutions">Approaches to Solving the Multi-Armed Bandit Problem</a></li><li><a href="#simulation">Simulation</a></li><li><a href="#conclusions">Conclusions</a></li><li><a href="#advanced">Advanced Topics</a></li><li><a href="#appendix">Appendix</a></li></ul></details></nav><section id="context"><h2>Context</h2><p><strong>Context</strong>: Black Friday is around the corner, and the marketing team wants to test different promo messages to maximize conversions/purchases. Marketing lead comes to me: “A/B test is great, but Black Friday is short! I can't afford to waste 50% of my traffic on a losing variant. Is there a way we can learn and optimize on the fly?”</p>
 <p>Well, this is where <strong>Multi-Armed Bandits (MAB)</strong> come into play!</p>
 <img class="intro-figure" src="https://raw.githubusercontent.com/sichaoj/Stats_ML_AI/main/images/MAB.png" width="600" alt="Illustration from the multi-armed bandit notebook">
 <p>The MAB is a sequential decision-making problem that balances <strong>exploration vs. exploitation</strong> to maximize cumulative rewards.</p>
@@ -39,7 +45,7 @@ main.post-main nav ul{display:grid;gap:.25rem}figcaption{color:#58636a;font-size
 </li>
 <li>Exploitation: Allocate more resources to the best-performing option based on current knowledge.
 </li></ul></section><section><h2 id="solutions">Approaches to Solving the Multi-Armed Bandit Problem</h2>
-<h3>1. The Concept</h3>
+<h3>Methods</h3>
 <ul>
 <li><strong>Pure Greedy:</strong> Always select the best-performing arm (<u>exploitation</u> only).
 </li>
@@ -55,7 +61,7 @@ main.post-main nav ul{display:grid;gap:.25rem}figcaption{color:#58636a;font-size
 <h3>2. The Black Friday Example</h3>
 <p>For the Black Friday promo, suppose we run some test for the first 20 mins with the following observed conversion rates:</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Notebook table"><table><thead><tr><th scope="col">Promo</th><th scope="col">Message</th><th scope="col">Observed CVR</th></tr></thead><tbody><tr><td>A</td><td>\(\$10\) off \(\$30\)</td><td>8%</td></tr><tr><td>B</td><td>30% off everything</td><td>7%</td></tr></tbody></table></div>
-<p><strong>Here's how each proposed solution works in practice:</strong></p>
+<p><strong>Here's how each proposed method works in practice:</strong></p>
 <ul>
 <li><strong>Pure Greedy:</strong> Always show Promo A because it has a higher conversion rate (8%).
 </li>
@@ -67,7 +73,7 @@ main.post-main nav ul{display:grid;gap:.25rem}figcaption{color:#58636a;font-size
 <ul>
 <li>The following table summarizes how each algorithm selects the promotion for the next customer.
 </li></ul>
-<div class="table-scroll" tabindex="0" role="region" aria-label="Notebook table"><table><thead><tr><th scope="col"></th><th scope="col">Traditional UCB</th><th scope="col">Bayesian UCB</th><th scope="col">Thompson Sampling</th></tr></thead><tbody><tr><td><strong>Exploitation (Reward)</strong></td><td>Observed CVR: \(\hat{p}_i=\frac{a_i}{n_i}\)</td><td>Posterior mean: \(\mu_i=\frac{a_i+1}{n_i+2}\)</td><td>&darr;</td></tr><tr><td><strong>Exploration (Bonus)</strong></td><td>\(\sqrt{\frac{c\ln N}{n_i}}\)</td><td>\(c\sigma_i\)</td><td>\(\tilde{p}_i\sim\text{Beta}(a_i+1,b_i+1)\)</td></tr><tr><td><strong>Arm Selection</strong></td><td>Deterministic</td><td>Deterministic</td><td>Stochastic</td></tr><tr><td><strong>Decision Rule</strong></td><td>Select the arm with the highest \(\hat{p}_i+\sqrt{\frac{c\ln N}{n_i}}\)</td><td>Select the arm with the highest \(\mu_i+c\sigma_i\)</td><td>Select the arm with the highest \(\tilde{p}_i\)</td></tr></tbody></table></div>
+<div class="table-scroll method-comparison" tabindex="0" role="region" aria-label="Comparison of arm selection methods"><table><thead><tr><th scope="col"></th><th scope="col">Traditional UCB</th><th scope="col">Bayesian UCB</th><th scope="col">Thompson Sampling</th></tr></thead><tbody><tr><th scope="row"><strong>Exploitation (Reward)</strong></th><td>Observed CVR: \(\hat{p}_i=\frac{a_i}{n_i}\)</td><td>Posterior mean: \(\mu_i=\frac{a_i+1}{n_i+2}\)</td><td>&darr;</td></tr><tr><th scope="row"><strong>Exploration (Bonus)</strong></th><td>\(\sqrt{\frac{c\ln N}{n_i}}\)</td><td>\(c\sigma_i\)</td><td>\(\tilde{p}_i\sim\text{Beta}(a_i+1,b_i+1)\)</td></tr><tr><th scope="row"><strong>Arm Selection</strong></th><td>Deterministic</td><td>Deterministic</td><td>Stochastic</td></tr><tr><th scope="row"><strong>Decision Rule</strong></th><td>Select the arm with the highest \(\hat{p}_i+\sqrt{\frac{c\ln N}{n_i}}\)</td><td>Select the arm with the highest \(\mu_i+c\sigma_i\)</td><td>Select the arm with the highest \(\tilde{p}_i\)</td></tr></tbody></table></div>
 <p>Where:</p>
 <ul>
 <li>\(i\in\{A,B\}\): Promotion index.
@@ -87,7 +93,7 @@ main.post-main nav ul{display:grid;gap:.25rem}figcaption{color:#58636a;font-size
 <ul>
 <li>(Traditional UCB) \(\sqrt{\frac{c\ln N}{n_i}}\): Given the same total number of visitors (\(N\)), the less-visited arm receives a larger exploration bonus, encouraging exploration.
 </li>
-<li>(Bayesian UCB) \(\sigma_i^2={\frac{(a_i+1)(b_i+1)}{(n_i+2)^2(n_i+3)}}=\frac{\mu_i(1-\mu_i)}{n_i+3}\): Holding the posterior mean constant (same rewards), more visits lead to smaller posterior variance (less bonus). In addition, more samples yeild less variance and thus smaller rewards.
+<li>(Bayesian UCB) \(\sigma_i^2={\frac{(a_i+1)(b_i+1)}{(n_i+2)^2(n_i+3)}}=\frac{\mu_i(1-\mu_i)}{n_i+3}\): Holding the posterior mean constant (\(\mu_i\), same rewards), more visits lead to smaller posterior variance (less bonus). In addition, more samples yeild less variance and thus smaller rewards.
 </li>
 <li>(Thompson Sampling): The distribution curve naturally balances exploitation and exploration: a higher mean favors performing arms, while a larger variance gives the less precise/certain arm a chance to be explored.
 <ul>
