@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS events (
+  id TEXT PRIMARY KEY,
+  day TEXT NOT NULL,
+  visitor TEXT NOT NULL,
+  country TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  path TEXT NOT NULL,
+  detail TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS events_day ON events(day);
+CREATE TABLE IF NOT EXISTS export_cursor (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  day TEXT NOT NULL
+);
