@@ -1,33 +1,40 @@
 const button=document.querySelector('.menu-button');const menu=document.querySelector('.mobile-nav');if(button&&menu){button.addEventListener('click',()=>{const open=menu.classList.toggle('open');button.setAttribute('aria-expanded',String(open));});}
 
 (() => {
-  // Set this to the public measurement ID of the site's GA4 web stream.
-  const measurementId = '';
-  if (!/^G-[A-Z0-9]+$/.test(measurementId) || location.hostname !== 'sichaoj.github.io') return;
+  const endpoint = ''; // Public HTTPS URL of the site analytics Worker.
+  if (!endpoint || location.hostname !== 'sichaoj.github.io') return;
 
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    window.dataLayer.push(arguments);
+  let currentVisitor;
+  function visitorForCurrentWeek() {
+    // Rotate the browser identifier every Monday in Asia/Shanghai.
+    const localDay = new Date(Date.now() + 8 * 3600000);
+    localDay.setUTCDate(localDay.getUTCDate() - (localDay.getUTCDay() + 6) % 7);
+    const week = localDay.toISOString().slice(0, 10);
+    if (currentVisitor?.week === week) return currentVisitor.visitor;
+
+    currentVisitor = { week, visitor: crypto.randomUUID() };
+    try {
+      const saved = JSON.parse(localStorage.getItem('site-analytics-visitor'));
+      if (saved?.week === week && typeof saved.visitor === 'string') {
+        currentVisitor = saved;
+      } else {
+        localStorage.setItem('site-analytics-visitor', JSON.stringify(currentVisitor));
+      }
+    } catch {
+      // Use an ephemeral identifier if storage is unavailable.
+    }
+    return currentVisitor.visitor;
   }
 
-  function sanitizedPageUrl(value) {
-    if (!value) return '';
-    const url = new URL(value);
-    return url.origin + url.pathname;
+  function track(kind, detail = '') {
+    const body = JSON.stringify({
+      id: crypto.randomUUID(), visitor: visitorForCurrentWeek(), kind, path: location.pathname, detail
+    });
+    fetch(endpoint, { method: 'POST', body, keepalive: true, credentials: 'omit' })
+      .catch(() => {});
   }
 
-  gtag('js', new Date());
-  gtag('config', measurementId, {
-    page_location: sanitizedPageUrl(location.href),
-    page_referrer: sanitizedPageUrl(document.referrer),
-    allow_google_signals: false,
-    allow_ad_personalization_signals: false
-  });
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + measurementId;
-  document.head.append(script);
+  track('view');
 
   document.addEventListener('click', trackKeyLink);
   document.addEventListener('auxclick', trackKeyLink);
@@ -39,16 +46,14 @@ const button=document.querySelector('.menu-button');const menu=document.querySel
 
     const url = new URL(link.href);
     if (url.protocol === 'mailto:') {
-      gtag('event', 'key_link_click', { link_destination: 'email' });
+      track('click', 'email');
       return;
     }
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
     const isExternal = url.origin !== location.origin;
     if (!isExternal && !/\.pdf$/i.test(url.pathname)) return;
 
-    gtag('event', 'key_link_click', {
-      link_destination: url.hostname + url.pathname
-    });
+    track('click', url.hostname + url.pathname);
   }
 
   const article = document.querySelector('main article');
@@ -65,7 +70,7 @@ const button=document.querySelector('.menu-button');const menu=document.querySel
 
     const visibleDepth = (window.innerHeight - bounds.top) / bounds.height * 100;
     while (milestones.length && visibleDepth >= milestones[0]) {
-      gtag('event', 'article_reading_depth', { depth_milestone: milestones.shift() + '%' });
+      track('depth', String(milestones.shift()));
     }
     if (!milestones.length) {
       window.removeEventListener('scroll', scheduleDepthCheck);
