@@ -1,35 +1,32 @@
 const button=document.querySelector('.menu-button');const menu=document.querySelector('.mobile-nav');if(button&&menu){button.addEventListener('click',()=>{const open=menu.classList.toggle('open');button.setAttribute('aria-expanded',String(open));});}
 
 (() => {
-  // Paste the public script URL from Plausible's Site installation screen here.
-  const analyticsScriptUrl = '';
-  if (!analyticsScriptUrl || location.hostname !== 'sichaoj.github.io') return;
+  // Set this to the public measurement ID of the site's GA4 web stream.
+  const measurementId = '';
+  if (!/^G-[A-Z0-9]+$/.test(measurementId) || location.hostname !== 'sichaoj.github.io') return;
 
-  const track = window.plausible = function () {
-    (track.q ||= []).push(arguments);
-  };
-  track.init = (options) => { track.o = options; };
-  track.init({
-    outboundLinks: false,
-    fileDownloads: false,
-    formSubmissions: false,
-    transformRequest(payload) {
-      const page = new URL(payload.u);
-      // Preserve campaign attribution without collecting arbitrary query parameters.
-      for (const key of [...page.searchParams.keys()]) {
-        if (!['utm_source', 'utm_medium', 'utm_campaign'].includes(key)) {
-          page.searchParams.delete(key);
-        }
-      }
-      page.hash = '';
-      payload.u = page.href;
-      return payload;
-    }
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+
+  function sanitizedPageUrl(value) {
+    if (!value) return '';
+    const url = new URL(value);
+    return url.origin + url.pathname;
+  }
+
+  gtag('js', new Date());
+  gtag('config', measurementId, {
+    page_location: sanitizedPageUrl(location.href),
+    page_referrer: sanitizedPageUrl(document.referrer),
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false
   });
 
   const script = document.createElement('script');
   script.async = true;
-  script.src = analyticsScriptUrl;
+  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + measurementId;
   document.head.append(script);
 
   document.addEventListener('click', trackKeyLink);
@@ -42,15 +39,15 @@ const button=document.querySelector('.menu-button');const menu=document.querySel
 
     const url = new URL(link.href);
     if (url.protocol === 'mailto:') {
-      track('Key Link Click', { props: { destination: 'email' } });
+      gtag('event', 'key_link_click', { link_destination: 'email' });
       return;
     }
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
     const isExternal = url.origin !== location.origin;
     if (!isExternal && !/\.pdf$/i.test(url.pathname)) return;
 
-    track('Key Link Click', {
-      props: { destination: url.hostname + url.pathname }
+    gtag('event', 'key_link_click', {
+      link_destination: url.hostname + url.pathname
     });
   }
 
@@ -68,7 +65,7 @@ const button=document.querySelector('.menu-button');const menu=document.querySel
 
     const visibleDepth = (window.innerHeight - bounds.top) / bounds.height * 100;
     while (milestones.length && visibleDepth >= milestones[0]) {
-      track('Article Reading Depth', { props: { percent: String(milestones.shift()) } });
+      gtag('event', 'article_reading_depth', { depth_milestone: milestones.shift() + '%' });
     }
     if (!milestones.length) {
       window.removeEventListener('scroll', scheduleDepthCheck);
