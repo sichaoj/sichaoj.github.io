@@ -1,0 +1,14 @@
+name = "sichaoj-site-analytics"
+main = "worker.mjs"
+compatibility_date = "2025-04-01"
+
+[vars]
+REPORT_REPOSITORY = "sichaoj/site-analytics-private"
+
+[[d1_databases]]
+binding = "ANALYTICS"
+database_name = "site-analytics"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[triggers]
+crons = ["15 16 * * *"]
